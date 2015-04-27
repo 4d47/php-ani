@@ -1,0 +1,23 @@
+{
+    "name": "4d47/iniml",
+    "description": "INI parser inspired by ArchieML and PHP array",
+    "keywords": ["ini", "markup", "language", "iniml", "text", "parser", "emitter"],
+    "authors": [
+        {
+            "name": "Mathieu Gagnon",
+            "email": "mathieu@gagnon.name"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.5"
+    },
+    "autoload": {
+        "psr-0": { "IniML": "" }
+    },
+    "scripts": {
+        "test": "phpunit IniMLTest"
+    }
+}
