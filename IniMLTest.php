@@ -58,5 +58,8 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
     {
         $input = "[groceries]\nmilk\napples\nkey: value\n";
         $this->assertSame($input, IniML::emit(IniML::load($input), ': '));
+
+        $input = "\\key: value\n";
+        $this->assertSame($input, IniML::emit(IniML::load($input)));
     }
 }

@@ -2,9 +2,6 @@
 
 class IniML
 {
-    const SEC = '/^\s*\[\s*([A-Za-z0-9\-_\.]+)\s*\].*$/';
-    const KEY = '/^\s*([A-Za-z0-9\-_\.]+)\s*[:=]\s*(.*?)\s*$/';
-
     private $data;
     private $currentSection;
     private $currentObject;
@@ -37,7 +34,7 @@ class IniML
             } else if (is_string($key) && is_string($value)) {
                 $out .= "$key$delimiter$value\n";
             } else if (is_string($value)) {
-                $out .= "$value\n";
+                $out .= static::escape("$value\n");
             } else if (is_array($value)) {
                 $out .= static::emit($value, $delimiter);
             }
@@ -48,11 +45,11 @@ class IniML
     public function parse($stream, $skipBlanks = true)
     {
         while ($line = fgets($stream)) {
-            if (preg_match(static::SEC, $line, $match)) {
+            if ($match = static::matchSection($line)) {
                 $this->multiline = false;
                 $this->listMode = static::is_plural($match[1]);
                 $this->currentSection = $this->data[ $match[1] ] = new ArrayObject();
-            } else if (preg_match(static::KEY, $line, $match)) {
+            } else if ($match = static::matchProperty($line)) {
                 $this->currentKey = $match[1];
                 $this->multiline = empty($match[2]);
                 $this->currentObject = $this->currentSection;
@@ -94,15 +91,40 @@ class IniML
                 }
                 $this->currentObject[$this->currentKey] = $match[2];
             } else if ($this->multiline) {
-                $this->currentObject[$this->currentKey] .= $this->unescape($line);
+                $this->currentObject[$this->currentKey] .= static::unescape($line);
             } else if (!$skipBlanks || !preg_match('/^\s*$/', $line)) {
-                $this->currentSection[] = rtrim($this->unescape($line), "\n");
+                $this->currentSection[] = rtrim(static::unescape($line), "\n");
             }
         }
         return $this->toArray($this->data);
     }
 
-    protected function unescape($line)
+
+    protected static function matchSection($line)
+    {
+        return static::match('/^\s*\[\s*([A-Za-z0-9\-_\.]*)\s*\]\s*$/', $line);
+    }
+
+    protected static function matchProperty($line)
+    {
+        return static::match('/^\s*([A-Za-z0-9\-_\.]+)\s*[:=]\s*(.*?)\s*$/', $line);
+    }
+
+    protected static function match($regex, $line)
+    {
+        preg_match($regex, $line, $match);
+        return $match;
+    }
+
+    protected static function escape($line)
+    {
+        if (static::matchSection($line) || static::matchProperty($line)) {
+            return preg_replace('/^(\s*)/', '$1\\', $line);
+        };
+        return $line;
+    }
+
+    protected static function unescape($line)
     {
         return preg_replace('/^(\s*)\\\\/', '$1', $line);
     }
