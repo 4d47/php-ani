@@ -59,7 +59,7 @@ Section plural determine the list type:
 
     → [grocery]
       name: milk
-    ← [ 'groceries' => [ 'name' => 'milk' ] ]
+    ← [ 'grocery' => [ 'name' => 'milk' ] ]
 
 Multiline is started by writing a newline!
 
