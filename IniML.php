@@ -50,14 +50,15 @@ class IniML
         while ($line = fgets($stream)) {
             if (preg_match(static::SEC, $line, $match)) {
                 $this->multiline = false;
-                $this->listMode = false;
+                $this->listMode = static::is_plural($match[1]);
                 $this->currentSection = $this->data[ $match[1] ] = new ArrayObject();
             } else if (preg_match(static::KEY, $line, $match)) {
                 $this->currentKey = $match[1];
                 $this->multiline = empty($match[2]);
                 $this->currentObject = $this->currentSection;
                 if ($this->listMode) {
-                    $last = $this->currentSection[count($this->currentSection) - 1];
+                    $last = $this->currentSection->count() ? 
+                        $this->currentSection[count($this->currentSection) - 1] : null;
                     if ($last instanceof ArrayObject) {
                         $this->currentObject = $last;
                     } else {
@@ -93,12 +94,17 @@ class IniML
                 }
                 $this->currentObject[$this->currentKey] = $match[2];
             } else if ($this->multiline) {
-                $this->currentObject[$this->currentKey] .= $line;
+                $this->currentObject[$this->currentKey] .= $this->unescape($line);
             } else if (!$skipBlanks || !preg_match('/^\s*$/', $line)) {
-                $this->currentSection[] = rtrim($line, "\n");
+                $this->currentSection[] = rtrim($this->unescape($line), "\n");
             }
         }
         return $this->toArray($this->data);
+    }
+
+    protected function unescape($line)
+    {
+        return preg_replace('/^(\s*)\\\\/', '$1', $line);
     }
 
     protected function toArray($array)
@@ -116,5 +122,10 @@ class IniML
         fwrite($handle, $string);
         rewind($handle);
         return $handle;
+    }
+
+    public static function is_plural($word)
+    {
+        return $word != \Doctrine\Common\Inflector\Inflector::singularize($word);
     }
 }

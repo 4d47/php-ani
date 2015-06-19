@@ -22,6 +22,9 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
         [ [ 'name' => 'frank', 'age' => '52' ],
           [ 'name' => 'vincent', 'age' => '64' ] ],
 
+        "\\key: value",
+        [ 'key: value' ],
+
         "key: value\nJanes is this working ?",
         [ 'key' => 'value', 'Janes is this working ?' ],
 
@@ -31,8 +34,15 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
         "[groceries]\nmilk\ncereals",
         [ 'groceries' => [ 'milk', 'cereals' ] ],
 
+        "[groceries]\nname:milk",
+        [ 'groceries' => [ [ 'name' => 'milk' ] ] ],
+
+        "[grocery]\nname:milk",
+        [ 'grocery' => [ 'name' => 'milk' ] ],
+
         "title: Funky\ncontent:\n\nSomething along\nthe lines",
         [ 'title' => 'Funky', 'content' => "\nSomething along\nthe lines" ],
+
     ];
 
     public function testAll()
