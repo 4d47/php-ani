@@ -108,8 +108,6 @@ A longer example:
 
 ## Todo
 
-* put options to constructor
-* make ArrayObject a dependency, eg. could use a CaseInsensitiveArrayObject
 * write a better test suite
 * if multiline, must hit a blank line before matching a new keys ?
 * should i add support for spaces in section name ? eg. php.ini use them
