@@ -45,21 +45,26 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
 
     ];
 
+    public function setUp()
+    {
+        $this->iniML = new IniML();
+    }
+
     public function testAll()
     {
         for ($i = 0; $i < count(self::$tests); $i++) {
             $input = self::$tests[$i++];
             $output = self::$tests[$i];
-            $this->assertSame($output, IniML::load($input));
+            $this->assertSame($output, $this->iniML->parse($input));
         }
     }
 
     public function testEmit()
     {
         $input = "[groceries]\nmilk\napples\nkey: value\n";
-        $this->assertSame($input, IniML::emit(IniML::load($input), ': '));
+        $this->assertSame($input, $this->iniML->emit($this->iniML->parse($input), ': '));
 
         $input = "\\key: value\n";
-        $this->assertSame($input, IniML::emit(IniML::load($input)));
+        $this->assertSame($input, $this->iniML->emit($this->iniML->parse($input)));
     }
 }
