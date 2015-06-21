@@ -113,4 +113,5 @@ A longer example:
 * write a better test suite
 * if multiline, must hit a blank line before matching a new keys ?
 * should i add support for spaces in section name ? eg. php.ini use them
+* parsing of values when it can be emited back seamlessly (numbers, boolean, dates/time) 
 
