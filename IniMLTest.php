@@ -3,24 +3,25 @@
 class IniMLTest extends \PHPUnit_Framework_TestCase
 {
     public static $tests = [
-        "key: value",
-        [ 'key' => 'value' ],
 
-        "key = value",
+        "key: value",
         [ 'key' => 'value' ],
 
         "key  :value",
         [ 'key' => 'value' ],
 
         "age: 42\nlikes_ice_cream: false",
-        [ 'age' => '42', 'likes_ice_cream' => 'false' ],
+        [ 'age' => 42, 'likes_ice_cream' => false ],
+
+        "key: null",
+        [ 'key' => null ],
 
         "name: frank
          age: 52
          name: vincent
          age: 64",
-        [ [ 'name' => 'frank', 'age' => '52' ],
-          [ 'name' => 'vincent', 'age' => '64' ] ],
+        [ [ 'name' => 'frank', 'age' => 52 ],
+          [ 'name' => 'vincent', 'age' => 64 ] ],
 
         "\\key: value",
         [ 'key: value' ],
@@ -66,5 +67,9 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
 
         $input = "\\key: value\n";
         $this->assertSame($input, $this->iniML->emit($this->iniML->parse($input)));
+
+        $this->assertSame("enable: false\n", $this->iniML->emit([ 'enable' => false ]));
+
+        $this->assertSame("enable: null\n", $this->iniML->emit([ 'enable' => null ]));
     }
 }

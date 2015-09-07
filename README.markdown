@@ -24,8 +24,8 @@ Duplicate keys creates new map:
       age: 52
       name: vincent
       age: 64
-    ← [ [ 'name' => 'frank', 'age' => '52' ],
-        [ 'name' => 'vincent', 'age' => '62 ] ]
+    ← [ [ 'name' => 'frank', 'age' => 52 ],
+        [ 'name' => 'vincent', 'age' => 62 ] ]
 
 Text lines are *not* ignored (but can be ignored or filtered):
 
@@ -81,35 +81,11 @@ key delimiter was used).
       A line
     ← [ '', 'key' => 'value', '', 'A line' ]
 
-A longer example:
-
-    → headline: head
-      intro: intro
-      [freeformText]
-      para
-      para
-      image: map1.jpg
-      credit: name
-      para
-      image: chart1.jpg
-      credit: name
-      para
-      para
-    ← [ 'headline' => 'head',
-        'intro' => 'intro',
-        'freeformText' => [
-          'para',
-          'para',
-          [ 'image' => 'map1.jpg', 'credit' => 'name' ],
-          'para',
-          [ 'image' => 'chart1.png', 'credit' => 'name' ],
-          'para',
-          'para' ] ]
 
 ## Todo
 
 * write a better test suite
 * if multiline, must hit a blank line before matching a new keys ?
 * should i add support for spaces in section name ? eg. php.ini use them
-* parsing of values when it can be emited back seamlessly (numbers, boolean, dates/time) 
+* add parsing of dates/time and other objects
 

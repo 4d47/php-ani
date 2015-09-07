@@ -13,13 +13,20 @@ class IniML
         $this->options = array_merge($this->options, $options);
     }
 
-    public function emit(array $array) // : string
+    public function emit(array $array)
     {
         $out = '';
         foreach ($array as $key => $value) {
-            if (is_string($key) && is_array($value)) {
-                $out .= "[$key]\n" . $this->emit($value);
-            } else if (is_string($key) && is_string($value)) {
+            if (is_string($key)) {
+                if (is_array($value)) {
+                    $out .= "[$key]\n" . $this->emit($value);
+                    continue;
+                }
+                if (is_bool($value)) {
+                    $value = var_export($value, true);
+                } else if (is_null($value)) {
+                    $value = 'null';
+                }
                 $out .= "$key{$this->options['delimiter']}$value\n";
             } else if (is_string($value)) {
                 $out .= $this->escape("$value\n");
@@ -88,7 +95,7 @@ class IniML
                     }
                     $currentObject = $currentSection[] = $this->makeArray();
                 }
-                $currentObject[$currentKey] = $match[2];
+                $currentObject[$currentKey] = $this->cast($match[2]);
             } else if ($multiline) {
                 $currentObject[$currentKey] .= $this->unescape($line);
             } else if (!$this->options['skipBlanks'] || !preg_match('/^\s*$/', $line)) {
@@ -125,6 +132,23 @@ class IniML
     protected function unescape($line)
     {
         return preg_replace('/^(\s*)\\\\/', '$1', $line);
+    }
+
+    protected function cast($value)
+    {
+        if (strcasecmp($value, 'true') === 0) {
+            return true;
+        }
+        if (strcasecmp($value, 'false') === 0) {
+            return false;
+        }
+        if (strcasecmp($value, 'null') === 0) {
+            return null;
+        }
+        if (is_numeric($value)) {
+            return $value + 0;
+        }
+        return $value;
     }
 
     protected function makeArray()
