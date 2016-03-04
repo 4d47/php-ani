@@ -5,7 +5,7 @@ class IniML
     public $options = [
         'delimiter' => ': ',
         'arrayClass' => 'ArrayObject',
-        'skipBlanks' => true,
+        'ignoreBlankLines' => true,
     ];
 
     public function __construct(array $options = [])
@@ -60,7 +60,7 @@ class IniML
                 $multiline = empty($match[2]);
                 $currentObject = $currentSection;
                 if ($listMode) {
-                    $last = $currentSection->count() ? 
+                    $last = $currentSection->count() ?
                         $currentSection[count($currentSection) - 1] : null;
                     if ($last instanceof ArrayObject) {
                         $currentObject = $last;
@@ -98,7 +98,7 @@ class IniML
                 $currentObject[$currentKey] = $this->cast($match[2]);
             } else if ($multiline) {
                 $currentObject[$currentKey] .= $this->unescape($line);
-            } else if (!$this->options['skipBlanks'] || !preg_match('/^\s*$/', $line)) {
+            } else if (!$this->options['ignoreBlankLines'] || !preg_match('/^\s*$/', $line)) {
                 $currentSection[] = rtrim($this->unescape($line), "\n");
             }
         }
