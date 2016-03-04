@@ -13,12 +13,13 @@ class IniML
         $this->options = array_merge($this->options, $options);
     }
 
-    public function emit(array $array)
+    public function emit($array)
     {
+        assert(is_array($array) || $array instanceof Traversable);
         $out = '';
         foreach ($array as $key => $value) {
             if (is_string($key)) {
-                if (is_array($value)) {
+                if (is_array($value) || $value instanceof Traversable) {
                     $out .= "[$key]\n" . $this->emit($value);
                     continue;
                 }
@@ -30,7 +31,7 @@ class IniML
                 $out .= "$key{$this->options['delimiter']}$value\n";
             } else if (is_string($value)) {
                 $out .= $this->escape("$value\n");
-            } else if (is_array($value)) {
+            } else if (is_array($value) || $value instanceof Traversable) {
                 $out .= $this->emit($value);
             }
         }
