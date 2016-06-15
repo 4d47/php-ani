@@ -3,7 +3,6 @@
 class IniML
 {
     public $options = [
-        'delimiter' => ': ',
         'arrayClass' => 'ArrayObject',
         'ignoreBlankLines' => true,
     ];
@@ -28,7 +27,7 @@ class IniML
                 } else if (is_null($value)) {
                     $value = 'null';
                 }
-                $out .= "$key{$this->options['delimiter']}$value\n";
+                $out .= "$key: $value\n";
             } else if (is_string($value)) {
                 $out .= $this->escape("$value\n");
             } else if (is_array($value) || $value instanceof Traversable) {
@@ -49,16 +48,35 @@ class IniML
         $currentObject = null;
         $currentKey = null;
         $multiline = false;
+        $indent = null;
         $listMode = false;
+        $isEmbededText = function() use (&$line, &$multiline, &$indent) {
+            // multiline has started and line is indented at least the amount of first line
+
+            return $multiline && ($indent && preg_match('/^' . preg_quote($indent) . '/', $line));
+        };
 
         while ($line = fgets($stream)) {
-            if ($match = $this->matchSection($line)) {
+
+            if ($multiline && empty($currentObject[$currentKey])) {
+                preg_match('/^\s*/', $line, $matches);
+                $indent = $matches[0];
+            }
+
+            if ($isEmbededText()) {
+               $currentObject[$currentKey] .=  preg_replace('/^' . preg_quote($indent) . '/', '', $line);
+
+            } else if ($match = $this->matchSection($line)) {
                 $multiline = false;
-                $listMode = static::isPlural($match[1]);
-                $currentSection = $data[ $match[1] ] = $this->makeArray();
+                $indent = null;
+                $sectionName = trim($match[1]);
+                $listMode = static::isPlural($sectionName);
+                $currentSection = $data[ $sectionName ] = $this->makeArray();
+
             } else if ($match = $this->matchProperty($line)) {
                 $currentKey = $match[1];
                 $multiline = empty($match[2]);
+                $indent = null;
                 $currentObject = $currentSection;
                 if ($listMode) {
                     $last = $currentSection->count() ?
@@ -97,9 +115,14 @@ class IniML
                     $currentObject = $currentSection[] = $this->makeArray();
                 }
                 $currentObject[$currentKey] = $this->cast($match[2]);
-            } else if ($multiline) {
+
+
+            } else if (!$indent && $multiline) {
                 $currentObject[$currentKey] .= $this->unescape($line);
-            } else if (!$this->options['ignoreBlankLines'] || !preg_match('/^\s*$/', $line)) {
+
+            } else if ($this->options['ignoreBlankLines'] === false || $this->notBlank($line)) {
+                $multiline = false;
+                $indent = null;
                 $currentSection[] = rtrim($this->unescape($line), "\n");
             }
         }
@@ -108,12 +131,12 @@ class IniML
 
     protected function matchSection($line)
     {
-        return $this->match('/^\s*\[\s*([A-Za-z0-9\-_\.]*)\s*\]\s*$/', $line);
+        return $this->match('/^\s*\[(.*)\]\s*$/', $line);
     }
 
     protected function matchProperty($line)
     {
-        return $this->match('/^\s*([A-Za-z0-9\-_\.]+)\s*[:=]\s*(.*?)\s*$/', $line);
+        return $this->match('/^\s*([^\\\\][^:\s]+)\s*:\s*(.*?)\s*$/', $line);
     }
 
     protected function match($regex, $line)
@@ -128,6 +151,11 @@ class IniML
             return preg_replace('/^(\s*)/', '$1\\', $line);
         };
         return $line;
+    }
+
+    protected function notBlank($line)
+    {
+        return !preg_match('/^\s*$/', $line);
     }
 
     protected function unescape($line)
