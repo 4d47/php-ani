@@ -59,7 +59,7 @@ class IniML
         while ($line = fgets($stream)) {
 
             if ($multiline && empty($currentObject[$currentKey])) {
-                preg_match('/^\s*/', $line, $matches);
+                preg_match('/^\s*/', rtrim($line, "\n"), $matches); // FIXME: refactor rtrim out of here
                 $indent = $matches[0];
             }
 
@@ -79,36 +79,14 @@ class IniML
                 $indent = null;
                 $currentObject = $currentSection;
                 if ($listMode) {
-                    $last = $currentSection->count() ?
-                        $currentSection[count($currentSection) - 1] : null;
-                    if ($last instanceof ArrayObject) {
-                        $currentObject = $last;
-                    } else {
-                        $currentObject = $currentSection[] = $this->makeArray();
-                    }
+                    $last = $currentSection->count() ? $currentSection[$currentSection->count() - 1] : null;
+                    $currentObject = $last instanceof ArrayObject ? $last : $currentSection[] = $this->makeArray();
                 }
                 if (isset($currentObject[$currentKey])) {
                     if (!$listMode) {
-                        if (!empty($currentObject->getArrayCopy())) {
-                            // convert data currently in map to list of data
-                            $new = [];
-                            $assoc = $this->makeArray();
-                            foreach ($currentObject as $key => $value) {
-                                if (is_numeric($key)) {
-                                    if (!empty($assoc)) {
-                                        $new[] = $assoc;
-                                        $assoc = $this->makeArray();
-                                    }
-                                    $new[] = $value;
-                                } else {
-                                    $assoc[$key] = $value;
-                                }
-                            }
-                            if (!empty($assoc)) {
-                                $new[] = $assoc;
-                            }
-
-                            $currentObject->exchangeArray($new);
+                        if ($currentObject->count()) {
+                            // convert to a list of objects
+                            $currentObject->exchangeArray([ clone $currentObject ]);
                         }
                         $listMode = true;
                     }
@@ -120,7 +98,14 @@ class IniML
             } else if ($this->options['ignoreBlankLines'] === false || $this->notBlank($line)) {
                 $multiline = false;
                 $indent = null;
-                $currentSection[] = rtrim($this->unescape($line), "\n");
+                if ($listMode) {
+                    // FIXME: this is kinda duplicated code from matchProperty
+                    $last = $currentSection->count() ? $currentSection[$currentSection->count() - 1] : null;
+                    $last = $last instanceof ArrayObject ? $last : $currentSection;
+                    $last[] = rtrim($this->unescape($line), "\n");
+                } else {
+                    $currentSection[] = rtrim($this->unescape($line), "\n");
+                }
             }
         }
         return $this->toArray($data);

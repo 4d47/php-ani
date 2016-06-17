@@ -4,7 +4,7 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->iniML = new IniML();
+        $this->iniML = new IniML([ 'ignoreBlankLines' => false ]);
     }
 
     public function testUsesColonAsTheKeyValueDelimiter()
@@ -42,6 +42,14 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
 age: 52
 name: vincent
 age: 64')
+        );
+        $this->assertEquals(
+            [ [ 'name' => 'frank', '', 'age' => 52 ],
+              [ 'name' => 'vincent' ] ],
+            $this->iniML->parse('name: frank
+
+age: 52
+name: vincent')
         );
     }
 
@@ -136,9 +144,10 @@ key:value
     public function testMultilineEndsWithIndentation()
     {
         $this->assertEquals(
-            [ 'content' => '', 'wut' ],
+            [ 'content' => '', '', 'sec' => [] ],
             $this->iniML->parse('content:
-wut
+
+[sec]
 ')
         );
     }
