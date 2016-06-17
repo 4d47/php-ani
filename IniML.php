@@ -5,6 +5,7 @@ class IniML
     public $options = [
         'arrayClass' => 'ArrayObject',
         'ignoreBlankLines' => true,
+        'multilineIndent' => '  ',
     ];
 
     public function __construct(array $options = [])
@@ -27,7 +28,11 @@ class IniML
                 } else if (is_null($value)) {
                     $value = 'null';
                 }
-                $out .= "$key: $value\n";
+                if (strpos($value, "\n") === false) {
+                    $out .= "$key: $value\n";
+                } else {
+                    $out .= "$key:\n" . preg_replace('/^(.*)/m', $this->options['multilineIndent'] . '$1', $value);
+                }
             } else if (is_string($value)) {
                 $out .= $this->escape("$value\n");
             } else if (is_array($value) || $value instanceof Traversable) {
@@ -50,11 +55,6 @@ class IniML
         $multiline = false;
         $indent = null;
         $listMode = false;
-        $isEmbededText = function() use (&$line, &$multiline, &$indent) {
-            // multiline has started and line is indented at least the amount of first line
-
-            return $multiline && ($indent && preg_match('/^' . preg_quote($indent) . '/', $line));
-        };
 
         while ($line = fgets($stream)) {
 
@@ -63,7 +63,7 @@ class IniML
                 $indent = $matches[0];
             }
 
-            if ($isEmbededText()) {
+            if ($multiline && ($indent && preg_match('/^' . preg_quote($indent) . '/', $line))) {
                $currentObject[$currentKey] .=  preg_replace('/^' . preg_quote($indent) . '/', '', $line);
 
             } else if ($match = $this->matchSection($line)) {
@@ -116,9 +116,6 @@ class IniML
                 }
                 $currentObject[$currentKey] = $this->cast($match[2]);
 
-
-            } else if (!$indent && $multiline) {
-                $currentObject[$currentKey] .= $this->unescape($line);
 
             } else if ($this->options['ignoreBlankLines'] === false || $this->notBlank($line)) {
                 $multiline = false;

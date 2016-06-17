@@ -15,8 +15,7 @@ Differences from INI:
 
 **Context** Built out from a port of ArchieML.
 Wanted to replace a bunch of YAML files with a more simple syntax
-and serialization that did not affected formatting.
-
+and serialization that did not change formatting.
 
 ## Usage
 
@@ -67,7 +66,7 @@ And sections:
       cereals
     « [ 'groceries' => [ 'milk', 'cereals' ] ]
 
-Section plural determine the list type:
+Section plural determine the initial list type:
 
     » [groceries]
       name: milk
@@ -77,40 +76,22 @@ Section plural determine the list type:
       name: milk
     « [ 'grocery' => [ 'name' => 'milk' ] ]
 
-Multiline is started by writing a newline!
+Multiline is started by writing a newline and indenting value!
 
     » title: Funky
       content:
+        Something along
+          the lines
+    « [ 'title' => 'Funky', 'content' => 'Something along\n  the lines' ]
 
-      Something along
-      the lines
-    « [ 'title' => 'Funky', 'content' => '\nSomething along\nthe lines' ]
-
-When the first line of multiline is indented, it embed raw text:
-
-    » content:
-        foo: bar
-        [doc]
-    « [ 'content' => 'foo: bar\n[doc]' ]
-
-By default blank lines are skipped while parsing because if you don't emit back
-they just clutter the result. Adding them allows to keep document (pretty much)
-intact when emitting back (you'll always loose whitespace around keys).
-
-    »
-      key: value
-
-      A line
-    « [ '', 'key' => 'value', '', 'A line' ]
-
-
-## Todo
-
-* Configurable functions, eg ignoreBlankLines, ignoreComments
-* Add parsing of dates/time and other objects
 
 ## FAQ
 
-Why no section nesting ?
-Section plural ... yikes!
+* Why no section nesting ?
+* Section plural ... yikes!
 
+## Thoughts
+
+* Configurable functions for ignoreBlankLines, ignoreComments, etc.
+* Configurable 'cast'
+* Rewrite with regular array, eg. remove toArray

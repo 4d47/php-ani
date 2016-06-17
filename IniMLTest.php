@@ -114,66 +114,7 @@ name: milk')
         );
     }
 
-    public function testMultilineStartsWithAnEmptyValue()
-    {
-        $this->assertEquals(
-            [ 'title' => 'Funky',
-              'content' => 'Something along
-the lines'
-            ],
-            $this->iniML->parse('title: Funky
-content:
-Something along
-the lines')
-        );
-    }
-
-    public function testMultilineEndsWithAKeyValue()
-    {
-        $this->assertEquals(
-            [ 'content' => 'Something along
-the lines
-',
-              'name' => 'Wut'
-            ],
-            $this->iniML->parse('content:
-Something along
-the lines
-name: Wut')
-        );
-        $this->assertEquals(
-            [ 'content' => '',
-              'foo' => 'bar'
-            ],
-            $this->iniML->parse('content:
-foo: bar')
-        );
-    }
-
-    public function testMultilineEndsWithASection()
-    {
-        $this->assertEquals(
-            [ 'content' => 'Something along
-the lines
-',
-              'people' => []
-            ],
-            $this->iniML->parse('content:
-Something along
-the lines
-[people]')
-        );
-
-        $this->assertEquals(
-            [ 'content' => '',
-              'people' => []
-            ],
-            $this->iniML->parse('content:
-[people]')
-        );
-    }
-
-    public function testMultilineIndentEmbedsText()
+    public function testMultilineStartsWithNewlineAndIndentation()
     {
         $this->assertEquals(
             [ 'content' => 'foo: bar
@@ -188,6 +129,16 @@ the lines
   \\three
 four
 key:value
+')
+        );
+    }
+
+    public function testMultilineEndsWithIndentation()
+    {
+        $this->assertEquals(
+            [ 'content' => '', 'wut' ],
+            $this->iniML->parse('content:
+wut
 ')
         );
     }
@@ -223,6 +174,13 @@ key:value
         $input = "  foo : bar  ";
         $this->assertEquals("foo: bar\n",
                             $this->iniML->emit($this->iniML->parse($input)));
+    }
+
+    public function testEmitMultiline()
+    {
+        $input = "content:\n  foo\n  bar\nkey: value\n";
+        $this->assertSame($input,
+                          $this->iniML->emit($this->iniML->parse($input)));
     }
 
     public function testOptionIgnoreBlankLines()
