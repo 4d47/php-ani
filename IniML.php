@@ -4,8 +4,8 @@ class IniML
 {
     public $options = [
         'arrayClass' => 'ArrayObject',
-        'ignoreBlankLines' => true,
         'multilineIndent' => '  ',
+        'lineIgnorePredicates' => []
     ];
 
     public function __construct(array $options = [])
@@ -92,10 +92,10 @@ class IniML
                     }
                     $currentObject = $currentSection[] = $this->makeArray();
                 }
-                $currentObject[$currentKey] = $this->cast($match[2]);
+                $currentObject[$currentKey] = $this->fromString($match[2]);
 
 
-            } else if ($this->options['ignoreBlankLines'] === false || $this->notBlank($line)) {
+            } else if ($this->matchIgnore($line) === false) {
                 $multiline = false;
                 $indent = null;
                 if ($listMode) {
@@ -121,6 +121,16 @@ class IniML
         return $this->match('/^\s*([^\\\\][^:\s]+)\s*:\s*(.*?)\s*$/', $line);
     }
 
+    protected function matchIgnore($line)
+    {
+        foreach ($this->options['lineIgnorePredicates'] as $fn) {
+            if ($fn($line)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected function match($regex, $line)
     {
         preg_match($regex, $line, $matches);
@@ -135,17 +145,12 @@ class IniML
         return $line;
     }
 
-    protected function notBlank($line)
-    {
-        return !preg_match('/^\s*$/', $line);
-    }
-
     protected function unescape($line)
     {
         return preg_replace('/^(\s*)\\\\/', '$1', $line);
     }
 
-    protected function cast($value)
+    protected function fromString($value)
     {
         if (strcasecmp($value, 'true') === 0) {
             return true;
@@ -157,7 +162,7 @@ class IniML
             return null;
         }
         if (is_numeric($value)) {
-            return $value + 0;
+            return +$value;
         }
         return $value;
     }
@@ -187,5 +192,15 @@ class IniML
     public static function isPlural($word)
     {
         return $word != \Doctrine\Common\Inflector\Inflector::singularize($word);
+    }
+
+    public static function isBlank($line)
+    {
+        return (boolean) preg_match('/^\s*$/', $line);
+    }
+
+    public static function isComment($line)
+    {
+        return (boolean) preg_match('/^\s*;/', $line);
     }
 }

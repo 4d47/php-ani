@@ -29,7 +29,7 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
                             $this->iniML->parse("key.foo.bar: 42"));
         $this->assertEquals(['f$%&\\!' => 42],
                             $this->iniML->parse("f$%&\\!: 42"));
-        $this->assertNotEquals(['a b' => 42],
+        $this->assertEquals(['a b: 42'],
                             $this->iniML->parse("a b: 42"));
     }
 
@@ -122,6 +122,18 @@ name: milk')
         );
     }
 
+    public function testLineItemInPluralSection()
+    {
+        $this->assertEquals(
+            [ 'people' => [ [ 'name' => 'frank', 'age' => 33, '' ] ] ],
+            $this->iniML->parse('[people]
+name:frank
+age: 33
+
+')
+        );
+    }
+
     public function testMultilineStartsWithNewlineAndIndentation()
     {
         $this->assertEquals(
@@ -192,13 +204,15 @@ key:value
                           $this->iniML->emit($this->iniML->parse($input)));
     }
 
-    public function testOptionIgnoreBlankLines()
+    public function testOptionLineIgnorePredicates()
     {
-        $this->iniML->options['ignoreBlankLines'] = false;
+        $this->iniML->options['lineIgnorePredicates'] = [ 'IniML::isBlank', 'IniML::isComment' ];
         $this->assertEquals(
-            ['', 'a', 'b', '', 'c'],
+            [ 'a', 'b', 'c' ],
             $this->iniML->parse("
 a
+
+; a comment
 b
 
 c")

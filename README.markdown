@@ -92,6 +92,5 @@ Multiline is started by writing a newline and indenting value!
 
 ## Thoughts
 
-* Configurable functions for ignoreBlankLines, ignoreComments, etc.
-* Configurable 'cast'
+* Configurable fromString/toString, eg. support embeded iniml
 * Rewrite with regular array, eg. remove toArray
