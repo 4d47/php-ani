@@ -19,6 +19,6 @@
         "psr-0": { "IniML": "" }
     },
     "scripts": {
-        "test": "phpunit IniMLTest"
+        "test": "phpunit IniMLTest.php"
     }
 }
