@@ -84,13 +84,3 @@ Multiline is started by writing a newline and indenting value!
           the lines
     « [ 'title' => 'Funky', 'content' => 'Something along\n  the lines' ]
 
-
-## FAQ
-
-* Why no section nesting ?
-* Section plural ... yikes!
-
-## Thoughts
-
-* Configurable fromString/toString, eg. support embeded iniml
-* Rewrite with regular array, eg. remove toArray

@@ -4,7 +4,7 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->iniML = new IniML([ 'ignoreBlankLines' => false ]);
+        $this->iniML = new IniML();
     }
 
     public function testUsesColonAsTheKeyValueDelimiter()
@@ -25,9 +25,9 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
 
     public function testAKeyIsAnyNonWhiteCharacters()
     {
-        $this->assertEquals(['key.foo.bar' => 42],
+        $this->assertEquals(['key.foo.bar' => '42'],
                             $this->iniML->parse("key.foo.bar: 42"));
-        $this->assertEquals(['f$%&\\!' => 42],
+        $this->assertEquals(['f$%&\\!' => '42'],
                             $this->iniML->parse("f$%&\\!: 42"));
         $this->assertEquals(['a b: 42'],
                             $this->iniML->parse("a b: 42"));
@@ -36,15 +36,15 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
     public function testADuplicateKeyCreatesAList()
     {
         $this->assertEquals(
-            [ [ 'name' => 'frank', 'age' => 52 ],
-              [ 'name' => 'vincent', 'age' => 64 ] ],
+            [ [ 'name' => 'frank', 'age' => '52' ],
+              [ 'name' => 'vincent', 'age' => '64' ] ],
             $this->iniML->parse('name: frank
 age: 52
 name: vincent
 age: 64')
         );
         $this->assertEquals(
-            [ [ 'name' => 'frank', '', 'age' => 52 ],
+            [ [ 'name' => 'frank', '', 'age' => '52' ],
               [ 'name' => 'vincent' ] ],
             $this->iniML->parse('name: frank
 
@@ -101,7 +101,7 @@ milk
 cereals')
         );
         $this->assertEquals(
-            [ '*[1964].txt' => [ 'indent_style' => 'space', 'indent_size' => 2 ] ],
+            [ '*[1964].txt' => [ 'indent_style' => 'space', 'indent_size' => '2' ] ],
             $this->iniML->parse('[ *[1964].txt ]
 indent_style: space
 indent_size: 2')
@@ -125,7 +125,7 @@ name: milk')
     public function testLineItemInPluralSection()
     {
         $this->assertEquals(
-            [ 'people' => [ [ 'name' => 'frank', 'age' => 33, '' ] ] ],
+            [ 'people' => [ [ 'name' => 'frank', 'age' => '33', '' ] ] ],
             $this->iniML->parse('[people]
 name:frank
 age: 33
@@ -178,18 +178,6 @@ key:value
                           $this->iniML->emit($this->iniML->parse($input)));
     }
 
-    public function testEmitBoolean()
-    {
-        $this->assertSame("enable: false\n",
-                          $this->iniML->emit([ 'enable' => false ]));
-    }
-
-    public function testEmitNull()
-    {
-        $this->assertSame("enable: null\n",
-                          $this->iniML->emit([ 'enable' => null ]));
-    }
-
     public function testEmitNormalizeKeyValue()
     {
         $input = "  foo : bar  ";
@@ -203,20 +191,4 @@ key:value
         $this->assertSame($input,
                           $this->iniML->emit($this->iniML->parse($input)));
     }
-
-    public function testOptionLineIgnorePredicates()
-    {
-        $this->iniML->options['lineIgnorePredicates'] = [ 'IniML::isBlank', 'IniML::isComment' ];
-        $this->assertEquals(
-            [ 'a', 'b', 'c' ],
-            $this->iniML->parse("
-a
-
-; a comment
-b
-
-c")
-        );
-    }
-
 }

@@ -2,17 +2,6 @@
 
 class IniML
 {
-    public $options = [
-        'arrayClass' => 'ArrayObject',
-        'multilineIndent' => '  ',
-        'lineIgnorePredicates' => []
-    ];
-
-    public function __construct(array $options = [])
-    {
-        $this->options = array_merge($this->options, $options);
-    }
-
     public function emit($array)
     {
         assert(is_array($array) || $array instanceof Traversable);
@@ -31,7 +20,7 @@ class IniML
                 if (strpos($value, "\n") === false) {
                     $out .= "$key: $value\n";
                 } else {
-                    $out .= "$key:\n" . preg_replace('/^(.*)/m', $this->options['multilineIndent'] . '$1', $value);
+                    $out .= "$key:\n" . preg_replace('/^(.*)/m', '  $1', $value);
                 }
             } else if (is_string($value)) {
                 $out .= $this->escape("$value\n");
@@ -48,7 +37,7 @@ class IniML
             $stream = static::stringResource($stream);
         }
 
-        $data = $this->makeArray();
+        $data = new ArrayObject();
         $currentSection = $data;
         $currentObject = null;
         $currentKey = null;
@@ -71,7 +60,7 @@ class IniML
                 $indent = null;
                 $sectionName = trim($match[1]);
                 $listMode = static::isPlural($sectionName);
-                $currentSection = $data[ $sectionName ] = $this->makeArray();
+                $currentSection = $data[ $sectionName ] = new ArrayObject();
 
             } else if ($match = $this->matchProperty($line)) {
                 $currentKey = $match[1];
@@ -80,7 +69,7 @@ class IniML
                 $currentObject = $currentSection;
                 if ($listMode) {
                     $last = $currentSection->count() ? $currentSection[$currentSection->count() - 1] : null;
-                    $currentObject = $last instanceof ArrayObject ? $last : $currentSection[] = $this->makeArray();
+                    $currentObject = $last instanceof ArrayObject ? $last : $currentSection[] = new ArrayObject();
                 }
                 if (isset($currentObject[$currentKey])) {
                     if (!$listMode) {
@@ -90,12 +79,12 @@ class IniML
                         }
                         $listMode = true;
                     }
-                    $currentObject = $currentSection[] = $this->makeArray();
+                    $currentObject = $currentSection[] = new ArrayObject();
                 }
-                $currentObject[$currentKey] = $this->fromString($match[2]);
+                $currentObject[$currentKey] = $match[2];
 
 
-            } else if ($this->matchIgnore($line) === false) {
+            } else {
                 $multiline = false;
                 $indent = null;
                 if ($listMode) {
@@ -121,16 +110,6 @@ class IniML
         return $this->match('/^\s*([^\\\\][^:\s]+)\s*:\s*(.*?)\s*$/', $line);
     }
 
-    protected function matchIgnore($line)
-    {
-        foreach ($this->options['lineIgnorePredicates'] as $fn) {
-            if ($fn($line)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     protected function match($regex, $line)
     {
         preg_match($regex, $line, $matches);
@@ -150,33 +129,11 @@ class IniML
         return preg_replace('/^(\s*)\\\\/', '$1', $line);
     }
 
-    protected function fromString($value)
-    {
-        if (strcasecmp($value, 'true') === 0) {
-            return true;
-        }
-        if (strcasecmp($value, 'false') === 0) {
-            return false;
-        }
-        if (strcasecmp($value, 'null') === 0) {
-            return null;
-        }
-        if (is_numeric($value)) {
-            return +$value;
-        }
-        return $value;
-    }
-
-    protected function makeArray()
-    {
-        return new $this->options['arrayClass'];
-    }
-
     protected function toArray($array)
     {
         $result = [];
         foreach ($array as $key => $value) {
-            $result[$key] = $value instanceof $this->options['arrayClass'] ? $this->toArray($value) : $value;
+            $result[$key] = $value instanceof ArrayObject ? $this->toArray($value) : $value;
         }
         return $result;
     }
@@ -192,15 +149,5 @@ class IniML
     public static function isPlural($word)
     {
         return $word != \Doctrine\Common\Inflector\Inflector::singularize($word);
-    }
-
-    public static function isBlank($line)
-    {
-        return (boolean) preg_match('/^\s*$/', $line);
-    }
-
-    public static function isComment($line)
-    {
-        return (boolean) preg_match('/^\s*;/', $line);
     }
 }
