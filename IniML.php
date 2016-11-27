@@ -100,6 +100,43 @@ class IniML
         return $this->toArray($data);
     }
 
+    public static function filter(&$array, $callback = 'IniML::simpleFilter')
+    {
+        foreach ($array as $key => &$value) {
+            if (is_array($value)) {
+                $array[$key] = static::filter($value, $callback);
+            } else if ($callback($value, $key) == false) {
+                unset($array[$key]);
+            }
+        }
+        return $array;
+    }
+
+    public static function simpleFilter(&$value, $key)
+    {
+        if (is_int($key)) { // line value
+            if (preg_match('/^\s*$/', $value)) {
+                return false;
+            }
+            if (preg_match('/^\s*;/', $value)) {
+                return false;
+            }
+        }
+        if (strcasecmp($value, 'true') === 0) {
+            $value = true;
+        }
+        if (strcasecmp($value, 'false') === 0) {
+            $value = false;
+        }
+        if (strcasecmp($value, 'null') === 0) {
+            $value = null;
+        }
+        if (is_numeric($value)) {
+            $value = +$value;
+        }
+        return true;
+    }
+
     protected function matchSection($line)
     {
         return $this->match('/^\s*\[(.*)\]\s*$/', $line);
@@ -138,7 +175,7 @@ class IniML
         return $result;
     }
 
-    public static function stringResource($string)
+    protected static function stringResource($string)
     {
         $handle = fopen('php://memory', 'w+');
         fwrite($handle, $string);
@@ -146,7 +183,7 @@ class IniML
         return $handle;
     }
 
-    public static function isPlural($word)
+    protected static function isPlural($word)
     {
         return $word != \Doctrine\Common\Inflector\Inflector::singularize($word);
     }

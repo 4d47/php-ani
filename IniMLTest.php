@@ -43,14 +43,6 @@ age: 52
 name: vincent
 age: 64')
         );
-        $this->assertEquals(
-            [ [ 'name' => 'frank', '', 'age' => '52' ],
-              [ 'name' => 'vincent' ] ],
-            $this->iniML->parse('name: frank
-
-age: 52
-name: vincent')
-        );
     }
 
     public function testLinesNotMatchingKeyValueAreKept()
@@ -190,5 +182,25 @@ key:value
         $input = "content:\n  foo\n  bar\nkey: value\n";
         $this->assertSame($input,
                           $this->iniML->emit($this->iniML->parse($input)));
+    }
+
+    public function testSimpleFilter()
+    {
+        $iniML = new IniML();
+        $result = $iniML->parse('
+
+            ;;
+            ;; This is the properties of Bob Flanagan
+            ;;
+
+            name: Bob
+            age: 34
+            license: null
+            likes_ice_cream: true
+        ');
+        $this->assertSame(
+            ['name' => 'Bob', 'age' => 34, 'license' => null, 'likes_ice_cream' => true],
+            IniML::filter($result, 'IniML::simpleFilter')
+        );
     }
 }
