@@ -15,12 +15,16 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
                             $this->iniML->parse("key = value"));
     }
 
-    public function testSpaceAroundKeyValueIsIgnored()
+    public function testUsesNoSpaceColonSpaceDelimiter()
     {
-        $this->assertEquals(['key' => 'value'],
+        $this->assertEquals(['key:value'],
                             $this->iniML->parse("key:value"));
-        $this->assertEquals(['key' => 'value'],
-                            $this->iniML->parse("  key  :   value  "));
+        $this->assertEquals(['key :value'],
+                            $this->iniML->parse("key :value"));
+        $this->assertEquals(['key : value'],
+                            $this->iniML->parse("key : value"));
+        $this->assertEquals(['key' => '  value '],
+                            $this->iniML->parse("key:   value "));
     }
 
     public function testAKeyIsAnyNonWhiteCharacters()
@@ -119,7 +123,7 @@ name: milk')
         $this->assertEquals(
             [ 'people' => [ [ 'name' => 'frank', 'age' => '33', '' ] ] ],
             $this->iniML->parse('[people]
-name:frank
+name: frank
 age: 33
 
 ')
@@ -140,7 +144,7 @@ age: 33
     [sec] !
   \\three
 four
-key:value
+key: value
 ')
         );
     }
@@ -170,13 +174,6 @@ key:value
                           $this->iniML->emit($this->iniML->parse($input)));
     }
 
-    public function testEmitNormalizeKeyValue()
-    {
-        $input = "  foo : bar  ";
-        $this->assertEquals("foo: bar\n",
-                            $this->iniML->emit($this->iniML->parse($input)));
-    }
-
     public function testEmitMultiline()
     {
         $input = "content:\n  foo\n  bar\nkey: value\n";
@@ -194,7 +191,7 @@ key:value
             ;;
 
             name: Bob
-            age: 34
+            age:  34
             license: null
             likes_ice_cream: true
         ');

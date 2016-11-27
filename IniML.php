@@ -122,16 +122,17 @@ class IniML
                 return false;
             }
         }
-        if (strcasecmp($value, 'true') === 0) {
+        $val = trim($value);
+        if (strcasecmp($val, 'true') === 0) {
             $value = true;
         }
-        if (strcasecmp($value, 'false') === 0) {
+        if (strcasecmp($val, 'false') === 0) {
             $value = false;
         }
-        if (strcasecmp($value, 'null') === 0) {
+        if (strcasecmp($val, 'null') === 0) {
             $value = null;
         }
-        if (is_numeric($value)) {
+        if (is_numeric($val)) {
             $value = +$value;
         }
         return true;
@@ -144,7 +145,7 @@ class IniML
 
     protected function matchProperty($line)
     {
-        return $this->match('/^\s*([^\\\\][^:\s]+)\s*:\s*(.*?)\s*$/', $line);
+        return $this->match('/^\s*([^\\\\][^:\s]+):[ \n](.*?)$/', $line);
     }
 
     protected function match($regex, $line)
