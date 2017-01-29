@@ -17,7 +17,9 @@ class IniML
                 } else if (is_null($value)) {
                     $value = 'null';
                 }
-                if (strpos($value, "\n") === false) {
+                if (empty($value)) {
+                    $out .= "$key:\n";
+                } elseif (strpos($value, "\n") === false) {
                     $out .= "$key: $value\n";
                 } else {
                     $out .= "$key:\n" . preg_replace('/^(.*)/m', '  $1', $value);

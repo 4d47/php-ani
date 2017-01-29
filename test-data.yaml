@@ -1,0 +1,143 @@
+
+delim colon-space is the key value delimiter:
+  - |
+    key: value
+  - |
+    [ 'key' => 'value' ]
+
+delim is not equal:
+  - |
+    key = value
+  - |
+    [ 'key = value' ]
+
+delim is not colon-only:
+  - |
+    key:value
+  - |
+    [ 'key:value' ]
+
+delim is not space-colon:
+  - |
+    key : value
+  - |
+    [ 'key : value' ]
+
+delim does not eat spaces:
+  - |
+    key:    value
+  - |
+    [ 'key' => '   value' ]
+
+key is any non white characters:
+  - |
+    foo.bar.baz: 42
+  - |
+    [ 'foo.bar.baz' => '42' ]
+
+key may contain special characters:
+  - |
+    f$%&\!: 42
+  - |
+    [ 'f$%&\\!' => '42' ]
+
+key may not contain space:
+  - |
+    a b: 42
+  - |
+    [ 'a b: 42' ]
+
+list are create with duplicate keys:
+  - |
+    name: frank
+    age: 52
+    name: vincent
+    age: 64
+  - |
+    [ [ 'name' => 'frank', 'age' => '52' ],
+      [ 'name' => 'vincent', 'age' => '64' ] ]
+
+lines not matching keys are kept:
+  - |
+    milk
+    cereals
+  - |
+    [ 'milk', 'cereals' ]
+
+espace with leading backslash:
+  - |
+    \key: value
+  - |
+    [ 'key: value' ]
+
+espace in middle of line is ignored:
+  - |
+    key \ value
+  - |
+    [ 'key \\ value' ]
+
+escape in key is valid:
+  - |
+    key\: value
+  - |
+    [ 'key\\' => 'value' ]
+
+section are allowed:
+  - |
+    [groceries]
+    milk
+    cereals
+  - |
+    [ 'groceries' => [ 'milk', 'cereals' ] ]
+
+section name may use any characters:
+  - |
+    [all the groceries]
+    milk
+    cereals
+  - |
+    [ 'all the groceries' => [ 'milk', 'cereals' ] ]
+
+section name with nested brackets:
+  - |
+    [*[1964].txt]
+    indent_style: space
+    indent_size: 2
+  - |
+    [ '*[1964].txt' => [ 'indent_style' => 'space', 'indent_size' => '2' ] ]
+
+section plural starts a list:
+  - |
+    [groceries]
+    name: milk
+  - |
+    [ 'groceries' => [ [ 'name' => 'milk' ] ] ]
+
+section singular:
+  - |
+    [grocery]
+    name: milk
+  - |
+    [ 'grocery' => [ 'name' => 'milk' ] ]
+
+multiline starts with newline and indentation:
+  - |
+    content:
+      foo: bar
+        [sec] !
+      \three
+    four
+    key: value
+  - |
+    [ 'content' => "foo: bar\n  [sec] !\n\\three\n",
+      'four',
+      'key' => 'value' ]
+
+multiline ends with indentation:
+  - |
+    content:
+
+    [sec]
+  - |
+    [ 'content' => '', '', 'sec' => [] ]
+
