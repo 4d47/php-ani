@@ -1,5 +1,5 @@
 
-# IniML
+# Ani is almost INI
 
 A format for structured text that is:
 

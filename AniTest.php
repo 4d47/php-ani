@@ -1,10 +1,10 @@
 <?php
 
-class IniMLTest extends \PHPUnit_Framework_TestCase
+class AniTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->iniML = new IniML();
+        $this->ani = new Ani();
     }
 
 	/**
@@ -12,13 +12,13 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
 	 */
     public function testParse($actual, $expected)
     {
-        $this->assertEquals(eval("return $expected;"), $this->iniML->parse($actual));
-        $this->assertEquals($actual, $this->iniML->emit($this->iniML->parse($actual)));
+        $this->assertEquals(eval("return $expected;"), $this->ani->parse($actual));
+        $this->assertEquals($actual, $this->ani->emit($this->ani->parse($actual)));
     }
 
     public function testSimpleFilter()
     {
-        $result = $this->iniML->parse('
+        $result = $this->ani->parse('
 
             ;;
             ;; This is the properties of Bob Flanagan
@@ -31,7 +31,7 @@ class IniMLTest extends \PHPUnit_Framework_TestCase
         ');
         $this->assertSame(
             ['name' => 'Bob', 'age' => 34, 'license' => null, 'likes_ice_cream' => true],
-            IniML::filter($result, 'IniML::simpleFilter')
+            Ani::filter($result, 'Ani::simpleFilter')
         );
     }
 

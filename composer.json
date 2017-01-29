@@ -1,7 +1,7 @@
 {
-    "name": "4d47/iniml",
-    "description": "INI parser inspired by ArchieML and PHP array",
-    "keywords": ["ini", "markup", "language", "iniml", "text", "parser", "emitter"],
+    "name": "4d47/ani",
+    "description": "Almost INI, parser/emitter inspired by ArchieML and PHP array",
+    "keywords": ["ini", "markup", "language", "ani", "text", "parser", "emitter"],
     "authors": [
         {
             "name": "Mathieu Gagnon",
@@ -17,9 +17,9 @@
         "phpunit/phpunit": "~4.5"
     },
     "autoload": {
-        "psr-0": { "IniML": "" }
+        "psr-0": { "Ani": "" }
     },
     "scripts": {
-        "test": "phpunit IniMLTest.php"
+        "test": "phpunit AniTest.php"
     }
 }

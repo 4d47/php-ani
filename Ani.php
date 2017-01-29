@@ -1,6 +1,6 @@
 <?php
 
-class IniML
+class Ani
 {
     public function emit($array)
     {
@@ -102,7 +102,7 @@ class IniML
         return $this->toArray($data);
     }
 
-    public static function filter(&$array, $callback = 'IniML::simpleFilter')
+    public static function filter(&$array, $callback = 'Ani::simpleFilter')
     {
         foreach ($array as $key => &$value) {
             if (is_array($value)) {
