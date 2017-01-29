@@ -19,6 +19,14 @@ and serialization that did not change formatting.
 
 ## Usage
 
+```php
+$ani = new Ani()
+$result = $ani->parse("key: value");
+$string = $ani->emit($result);
+```
+
+## Format
+
     » key: value
     « [ 'key' => 'value' ]
 
@@ -84,3 +92,9 @@ Multiline is started by writing a newline and indenting value!
           the lines
     « [ 'title' => 'Funky', 'content' => 'Something along\n  the lines' ]
 
+
+## Almost equal to
+
+- spaces before key is lost
+- surrounding spaces in section names is lost
+- multiline indentation is always two-spaces
