@@ -20,9 +20,8 @@ and serialization that did not change formatting.
 ## Usage
 
 ```php
-$ani = new Ani()
-$result = $ani->parse("key: value");
-$string = $ani->emit($result);
+$result = Ani\parse("key: value");
+$string = Ani\emit($result);
 ```
 
 ## Format

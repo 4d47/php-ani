@@ -1,24 +1,20 @@
 <?php
+namespace Ani;
 
 class AniTest extends \PHPUnit_Framework_TestCase
 {
-    public function setUp()
-    {
-        $this->ani = new Ani();
-    }
-
 	/**
 	 * @dataProvider parseProvider
 	 */
     public function testParse($actual, $expected)
     {
-        $this->assertEquals(eval("return $expected;"), $this->ani->parse($actual));
-        $this->assertEquals($actual, $this->ani->emit($this->ani->parse($actual)));
+        $this->assertEquals(eval("return $expected;"), parse($actual));
+        $this->assertEquals($actual, emit(parse($actual)));
     }
 
     public function testSimpleFilter()
     {
-        $result = $this->ani->parse('
+        $result = parse('
 
             ;;
             ;; This is the properties of Bob Flanagan
@@ -31,7 +27,7 @@ class AniTest extends \PHPUnit_Framework_TestCase
         ');
         $this->assertSame(
             ['name' => 'Bob', 'age' => 34, 'license' => null, 'likes_ice_cream' => true],
-            Ani::filter($result, 'Ani::simpleFilter')
+            filter($result)
         );
     }
 
