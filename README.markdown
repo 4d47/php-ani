@@ -5,7 +5,7 @@ A format for structured text that is:
 
 - Easy for authoring
 - Easy to embed other formats
-- s == emit(parse(s))
+- s ≈ emit(parse(s))
 
 Differences from INI:
 - No parsing errors
