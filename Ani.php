@@ -105,7 +105,7 @@ function parse($stream)
     return toArray($data);
 }
 
-function filter(&$array, $callback = '\Ani\simpleFilter')
+function filter($array, $callback = '\Ani\simpleFilter')
 {
     foreach ($array as $key => &$value) {
         if (is_array($value)) {
@@ -127,17 +127,17 @@ function simpleFilter(&$value, $key)
             return false;
         }
     }
-    $val = trim($value);
-    if (strcasecmp($val, 'true') === 0) {
+    $value = trim($value);
+    if (strcasecmp($value, 'true') === 0) {
         $value = true;
     }
-    if (strcasecmp($val, 'false') === 0) {
+    if (strcasecmp($value, 'false') === 0) {
         $value = false;
     }
-    if (strcasecmp($val, 'null') === 0) {
+    if (strcasecmp($value, 'null') === 0) {
         $value = null;
     }
-    if (is_numeric($val)) {
+    if (is_numeric($value)) {
         $value = +$value;
     }
     return true;
@@ -193,4 +193,3 @@ function isPlural($word)
 {
     return $word != Inflector::singularize($word);
 }
-

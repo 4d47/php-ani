@@ -14,20 +14,19 @@ class AniTest extends \PHPUnit_Framework_TestCase
 
     public function testSimpleFilter()
     {
-        $result = parse('
-
-            ;;
-            ;; This is the properties of Bob Flanagan
-            ;;
-
-            name: Bob
-            age:  34
-            license: null
-            likes_ice_cream: true
-        ');
         $this->assertSame(
             ['name' => 'Bob', 'age' => 34, 'license' => null, 'likes_ice_cream' => true],
-            filter($result)
+            filter(parse('
+
+		            ;;
+		            ;; This is the properties of Bob Flanagan
+		            ;;
+
+		            name:            Bob
+		            age:             34
+		            license:         null
+		            likes_ice_cream: true
+		        '))
         );
     }
 
