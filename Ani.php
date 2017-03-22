@@ -150,7 +150,7 @@ function matchSection($line)
 
 function matchProperty($line)
 {
-    return match('/^\s*([^\\\\][^:\s]+):[ \n](.*?)$/', $line);
+    return match('/^\s*([^\\\\:\s][^:\s]*):[ \n](.*?)$/', $line);
 }
 
 function match($regex, $line)
@@ -193,4 +193,3 @@ function isPlural($word)
 {
     return $word != Inflector::singularize($word);
 }
-

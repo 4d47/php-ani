@@ -47,6 +47,12 @@ key may not contain space:
   - |
     [ 'a b: 42' ]
 
+key may be single character:
+  - |
+    a: 42
+  - |
+    [ 'a' => '42' ]
+
 list are create with duplicate keys:
   - |
     name: frank
@@ -140,4 +146,3 @@ multiline ends with indentation:
     [sec]
   - |
     [ 'content' => '', '', 'sec' => [] ]
-
