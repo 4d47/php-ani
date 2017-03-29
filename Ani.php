@@ -108,7 +108,7 @@ function parse($stream)
 function filter($array, $callback = '\Ani\simpleFilter')
 {
     foreach ($array as $key => &$value) {
-        if (is_array($value)) {
+        if (is_array($value) || $value instanceof Traversable) {
             $array[$key] = filter($value, $callback);
         } else if ($callback($value, $key) == false) {
             unset($array[$key]);
