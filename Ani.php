@@ -2,7 +2,6 @@
 namespace Ani;
 
 use \Doctrine\Common\Inflector\Inflector;
-use \ArrayObject;
 
 
 function emit($array)
@@ -42,8 +41,8 @@ function parse($stream)
         $stream = stringResource($stream);
     }
 
-    $data = new ArrayObject();
-    $currentSection = $data;
+    $data = [];
+    $currentSection =& $data;
     $currentObject = null;
     $currentKey = null;
     $multiline = false;
@@ -65,26 +64,30 @@ function parse($stream)
             $indent = null;
             $sectionName = trim($match[1]);
             $listMode = isPlural($sectionName);
-            $currentSection = $data[ $sectionName ] = new ArrayObject();
+            $data[ $sectionName ] = [];
+            $currentSection =& $data[ $sectionName ];
 
         } else if ($match = matchProperty($line)) {
             $currentKey = $match[1];
             $multiline = empty($match[2]);
             $indent = null;
-            $currentObject = $currentSection;
+            $currentObject =& $currentSection;
             if ($listMode) {
-                $last = $currentSection->count() ? $currentSection[$currentSection->count() - 1] : null;
-                $currentObject = $last instanceof ArrayObject ? $last : $currentSection[] = new ArrayObject();
+                if (!count($currentSection) || !is_array($currentSection[count($currentSection) - 1])) {
+                    $currentSection[] = [];
+                }
+                $currentObject =& $currentSection[count($currentSection) - 1];
             }
             if (isset($currentObject[$currentKey])) {
                 if (!$listMode) {
-                    if ($currentObject->count()) {
+                    if (count($currentObject)) {
                         // convert to a list of objects
-                        $currentObject->exchangeArray([ clone $currentObject ]);
+                        $currentObject = [ $currentObject ];
                     }
                     $listMode = true;
                 }
-                $currentObject = $currentSection[] = new ArrayObject();
+                $currentSection[] = [];
+                $currentObject =& $currentSection[count($currentSection) - 1];
             }
             $currentObject[$currentKey] = $match[2];
 
@@ -92,17 +95,15 @@ function parse($stream)
         } else {
             $multiline = false;
             $indent = null;
-            if ($listMode) {
-                // FIXME: this is kinda duplicated code from matchProperty
-                $last = $currentSection->count() ? $currentSection[$currentSection->count() - 1] : null;
-                $last = $last instanceof ArrayObject ? $last : $currentSection;
-                $last[] = rtrim(unescape($line), "\n");
+            $value = rtrim(unescape($line), "\n");
+            if ($listMode && count($currentSection) && is_array($currentSection[count($currentSection) - 1])) {
+                $currentSection[count($currentSection) - 1][] = $value;
             } else {
-                $currentSection[] = rtrim(unescape($line), "\n");
+                $currentSection[] = $value;
             }
         }
     }
-    return toArray($data);
+    return $data;
 }
 
 function filter($array, $callback = '\Ani\simpleFilter')
@@ -170,15 +171,6 @@ function escape($line)
 function unescape($line)
 {
     return preg_replace('/^(\s*)\\\\/', '$1', $line);
-}
-
-function toArray($array)
-{
-    $result = [];
-    foreach ($array as $key => $value) {
-        $result[$key] = $value instanceof ArrayObject ? toArray($value) : $value;
-    }
-    return $result;
 }
 
 function stringResource($string)
