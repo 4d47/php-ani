@@ -3,9 +3,9 @@ namespace Ani;
 
 class AniTest extends \PHPUnit_Framework_TestCase
 {
-	/**
-	 * @dataProvider parseProvider
-	 */
+    /**
+     * @dataProvider parseProvider
+     */
     public function testParse($actual, $expected)
     {
         $this->assertEquals(eval("return $expected;"), parse($actual));
@@ -18,20 +18,20 @@ class AniTest extends \PHPUnit_Framework_TestCase
             ['name' => 'Bob', 'age' => 34, 'license' => null, 'likes_ice_cream' => true],
             filter(parse('
 
-		            ;;
-		            ;; This is the properties of Bob Flanagan
-		            ;;
+                    ;;
+                    ;; This is the properties of Bob Flanagan
+                    ;;
 
-		            name:            Bob
-		            age:             34
-		            license:         null
-		            likes_ice_cream: true
-		        '))
+                    name:            Bob
+                    age:             34
+                    license:         null
+                    likes_ice_cream: true
+            '))
         );
     }
 
     public function parseProvider()
     {
-		return yaml_parse_file('test-data.yaml');
+        return yaml_parse_file('test-data.yaml');
     }
 }
