@@ -73,7 +73,7 @@ And sections:
       cereals
     « [ 'groceries' => [ 'milk', 'cereals' ] ]
 
-Section plural determine the initial list type:
+Section plural <ins>(controversial)</ins> determine the initial list type:
 
     » [groceries]
       name: milk
