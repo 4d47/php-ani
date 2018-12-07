@@ -1,7 +1,7 @@
 
 # Ani is almost INI
 
-A format for structured text that is:
+This is an exploration of a format for structured text that is:
 
 - Easy for authoring
 - Easy to embed other formats
@@ -9,13 +9,13 @@ A format for structured text that is:
 
 Differences from INI:
 - No parsing errors
-- Use colon instead of equal
 - Has multiline value
 - Has lists
+- Use colon instead of equal
 
 **Context** Built out from a port of ArchieML.
-Wanted to replace a bunch of YAML files with a more simple syntax
-and serialization that did not change formatting.
+Wanted to replace a bunch of YAML files with a simpler syntax
+that did not change formatting on serialization.
 
 ## Usage
 
