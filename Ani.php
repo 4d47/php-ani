@@ -1,8 +1,6 @@
 <?php
 namespace Ani;
 
-use \Doctrine\Common\Inflector\Inflector;
-
 
 function emit($array)
 {
@@ -183,5 +181,5 @@ function stringResource($string)
 
 function isPlural($word)
 {
-    return $word != Inflector::singularize($word);
+    return $word != \Inflect\Inflect::singularize($word);
 }

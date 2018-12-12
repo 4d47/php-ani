@@ -32,6 +32,6 @@ class AniTest extends \PHPUnit_Framework_TestCase
 
     public function parseProvider()
     {
-        return yaml_parse_file('test-data.yaml');
+        return \Symfony\Component\Yaml\Yaml::parse(file_get_contents('test-data.yaml'));
     }
 }
